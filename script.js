@@ -1,8 +1,9 @@
 const categoryBox = document.querySelector("ul.menu");
 const allTreesBtn = document.getElementById("all-trees-btn");
+const treeBox = document.querySelector(".tree-box");
+const cartItems = document.querySelector(".cart-items");
 
-
-
+let cart = [];
 
 // show / hide spinner
 const showSpinner = () => spinner.classList.remove("hidden");
@@ -59,6 +60,74 @@ const loadAllTrees = async () => {
   hideSpinner();
   renderTrees(data.plants);
 };
+
+const renderTrees = (trees) => {
+  trees?.forEach((tree) => {
+    const card = document.createElement("div");
+    card.className = "card bg-base-100 shadow-sm";
+
+    card.innerHTML = `
+      <figure class="p-1">
+        <img src="${tree.image}" alt="${tree.name}" class="rounded-xl h-48 w-full object-cover" />
+      </figure>
+      <div class="p-2">
+        <h2 class="card-title mt-2 cursor-pointer text-green-700 hover:underline" data-id="${tree.id}">
+          ${tree.name}
+        </h2>
+        <p class="text-gray-600 text-sm">${tree?.description}</p>
+        <div class="flex justify-between items-center mt-2 font-medium">
+          <p class="bg-green-200 rounded-3xl p-1 px-2">${tree.category}</p>
+          <p>৳${tree.price}</p>
+        </div>
+        <div class="mt-2">
+          <button class="btn w-full bg-[#15803D] rounded-2xl text-white border-none" data-add="${tree.id}">
+            Add to Cart
+          </button>
+        </div>
+      </div>
+    `;
+
+    card
+      .querySelector("button")
+      .addEventListener("click", () => addToCart(tree));
+    card
+      .querySelector("h2")
+      .addEventListener("click", () => showModal(tree.id));
+
+    treeBox.appendChild(card);
+  });
+};
+
+const showModal = async (id) => {
+  showSpinner();
+  const res = await fetch(
+    `https://openapi.programming-hero.com/api/plant/${id}`
+  );
+  const data = await res.json();
+  hideSpinner();
+
+  const tree = data.plants;
+  const modal = document.createElement("dialog");
+  modal.className = "modal";
+  modal.open = true;
+
+  modal.innerHTML = `
+    <div class="modal-box">
+      <h3 class="font-bold text-lg">${tree.name}</h3>
+      <img src="${tree.image}" alt="${tree.name}" class="w-full h-52 object-cover rounded-md mt-2" />
+      <p class="mt-2 text-sm text-gray-600">${tree.description}</p>
+      <p class="mt-2 font-semibold">Category: ${tree.category}</p>
+      <p class="font-semibold">Price: ৳${tree.price}</p>
+      <div class="modal-action">
+        <button class="btn bg-green-700 text-white">Close</button>
+      </div>
+    </div>
+  `;
+
+  document.body.appendChild(modal);
+  modal.querySelector("button").addEventListener("click", () => modal.remove());
+};
+
 
 
 // data load
