@@ -2,6 +2,8 @@ const categoryBox = document.querySelector("ul.menu");
 const allTreesBtn = document.getElementById("all-trees-btn");
 const treeBox = document.querySelector(".tree-box");
 const cartItems = document.querySelector(".cart-items");
+const totalPrice = document.getElementById("total-price");
+const spinner = document.getElementById("spinner");
 
 let cart = [];
 
@@ -128,7 +130,47 @@ const showModal = async (id) => {
   modal.querySelector("button").addEventListener("click", () => modal.remove());
 };
 
+// Add to cart
+const addToCart = (tree) => {
+  const existing = cart.find((item) => item.id === tree.id);
+  if (existing) {
+    existing.quantity++;
+  } else {
+    cart.push({ ...tree, quantity: 1 });
+  }
+  alert(`"${tree.name}" has been added to your cart!`);
+  renderCart();
+};
 
+// show cart items
+const renderCart = () => {
+  cartItems.innerHTML = "";
+  let total = 0;
+
+  cart.forEach((item) => {
+    total += item.price * item.quantity;
+
+    const div = document.createElement("div");
+    div.className =
+      "flex justify-between items-center bg-[#f0fdf4] p-2 rounded-lg mt-2 mb-2";
+    div.innerHTML = `
+      <div>
+        <h1>${item.name}</h1>
+        <h1 class="text-gray-400">৳${item.price} x ${item.quantity}</h1>
+      </div>
+      <i class="fa-solid fa-x cursor-pointer text-red-600"></i>
+    `;
+
+    div.querySelector("i").addEventListener("click", () => {
+      cart = cart.filter((c) => c.id !== item.id);
+      renderCart();
+    });
+
+    cartItems.appendChild(div);
+  });
+
+  totalPrice.innerText = `৳${total}`;
+};
 
 // data load
 loadCategories();
